@@ -29,6 +29,6 @@ const videoSchema = new Schema({
     }
 
 },{timestamps:true});
-
+//let us write aggregation queries
 videoSchema.plugin(mongooseAggregatePaginate);
 export const Videos = mongoose.model("Videos",videoSchema);

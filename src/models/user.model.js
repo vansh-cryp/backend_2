@@ -49,6 +49,7 @@ const userSchema = new Schema({
 },{timestamps:true});
 //jwt is a berarer token like a master key it gives data to any person who has this token
 //run this code only if password is changed
+// pre hook is used just before the saving of payload
 userSchema.pre("save",async function(next){
     if(this.isModified("password")){
       this.password = bcrypt.hash(this.password,10);
@@ -57,6 +58,7 @@ userSchema.pre("save",async function(next){
         return next();
     }
 });
+// to check is password correct
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password,this.password)
 }

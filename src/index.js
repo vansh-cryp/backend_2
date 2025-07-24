@@ -4,7 +4,7 @@ import connectDB from "./db/db.js";
 import dotenv from "dotenv"
 //second aproach make the code in another file and use here
 dotenv.config({
-    path:'./env'
+    path:'./.env'
 })
 
 connectDB()

@@ -17,7 +17,7 @@ const registerUser = asyncHandler(async(req,res)=>{
     //return user
 
     const{username,fullname,email,password} = req.body;
-    console.log("email: ",email);
+    //console.log("email: ",email);
     //either use if else for each field otherwise use th below mehtod
     if(
         [fullname,email,username,password].some((field)=>field?.trim() === "")
@@ -26,7 +26,7 @@ const registerUser = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"All field Required");
     }
     // check id user exists or not
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         //operater
         $or:[{email},{username}]
     });
@@ -35,9 +35,13 @@ const registerUser = asyncHandler(async(req,res)=>{
     }
     //? is used  to check is we have access or not [0] is used to acess first property 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
-
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
     //this gives the path of the document uploaded by multer
+    //for can not read properties of undefined
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage)&& req.files.coverImage.length > 0){
+        coverImageLocalPath = req.files.coverImage[0].path;
+    } 
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar file is required");
     }

@@ -51,7 +51,7 @@ const userSchema = new Schema({
 //run this code only if password is changed
 // pre hook is used just before the saving of payload
 userSchema.pre("save",async function(next){
-    if(this.isModified("password")){
+    if(!this.isModified("password")){
       this.password = await bcrypt.hash(this.password,10);
       next()
     }else{

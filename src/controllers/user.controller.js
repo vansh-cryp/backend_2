@@ -129,7 +129,6 @@ const loginUser = asyncHandler(async(req,res)=>{
 }
 )
 
-
 const logOutUser = asyncHandler(async(req,res)=>{
     //remove the cookies got locleaging out
     // and reset the refresh token in the database
@@ -207,7 +206,6 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
     return res.status(200).json(200,req.user,"Current user fetched successfully")
 })
 
-
 const upadateAccountDetails = asyncHandler(async(req,res)=>{
     const{fullname,email} = req.body;
     if(!fullname || !email){
@@ -270,7 +268,56 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
 
     return res.status(200).json(new ApiResponse(200,{user},"Cover iamge is updated successfully"))
 })
+
+const getUserChannelProfile = asyncHandler(async(req,res)=>{
+    const {username} = req.params;
+    if(!username?.trim()){
+        throw new ApiError(400,"User name is missing")
+    }
+    const channel = await User.aggregate([{ 
+        $match : {username : username?.toLowerCase()}
+    },{
+        $lookup:{
+            from:"subscriptions",
+            localField:"_id",
+            foreignField:"channel",
+            as:"subscribers"
+        }
+    },{
+        $lookup:{
+            from :"subscriptions",
+            localField:"_id",
+            foreignField:"subscriber",
+            as:"subscribedTo"
+        }
+    },{
+        $addFields:{
+            subscribersCount : {$size :"$subscribers"},
+            subscribedToCount : {$size :"$subscribedTo"},
+            isSubscribed :{
+                $cond:{
+                    if:{
+                        $in : [req.user?._id,"$subscribers.subscriber"]
+                    },
+                    then: true,
+                    else: false
+                }
+            }        
+        }
+    },{
+        $project : {
+            fullName : 1,
+            username: 1,
+            email : 1,
+            avatar : 1,
+            subscribedToCount:1,
+            
+        }
+    }
+]);
+})
 export {
+    getUserChannelProfile,    
     updateUserAvatar,
     upadateAccountDetails,
     registerUser,
